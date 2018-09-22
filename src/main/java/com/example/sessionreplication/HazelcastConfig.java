@@ -4,11 +4,8 @@ import com.hazelcast.config.*;
 import com.hazelcast.map.listener.MapListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.session.MapSession;
 
-import static com.example.sessionreplication.SessionreplicationApplication.GROUP_CONFIG_NAME;
-import static com.example.sessionreplication.SessionreplicationApplication.HAZELCAST_INSTANCE_NAME;
-import static com.example.sessionreplication.SessionreplicationApplication.MAP_CONFIG_NAME;
+import static com.example.sessionreplication.SessionreplicationApplication.*;
 
 @Configuration
 public class HazelcastConfig {
@@ -37,13 +34,14 @@ public class HazelcastConfig {
         return config;
     }
 
-    // Since we are creating the map it's important to purge sessions
+    // Since we are creating the map it's important to evict sessions
     // by setting a reasonable value for time to live
-    // as the default is 0 which means infinite
+    // as the default is 0 which means infinite.
+    // In this example I have set it to a low value of 30 seconds for demonstration purposes.
     private MapConfig mapConfig() {
         final MapConfig mapConfig = new MapConfig();
         mapConfig.setName(MAP_CONFIG_NAME);
-        mapConfig.setTimeToLiveSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
+        mapConfig.setTimeToLiveSeconds(30);
         mapConfig.setEvictionPolicy(EvictionPolicy.LRU);
         mapConfig.addEntryListenerConfig(new EntryListenerConfig(HazelcastEntryListener.class.getName(), false, false ) );
         return mapConfig;
